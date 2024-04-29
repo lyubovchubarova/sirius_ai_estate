@@ -90,8 +90,8 @@ def create_request(underground, page,rooms_v):
 
 def parsing(min_underground, max_undergroud):
     for i in range (min_underground,max_undergroud):
-        j = 1;
         for k in range(0,2):
+            j = 1;
             while (j<55):
                 print(f"страница {j}, метро {i}, конфиг комнат {k}")
                 response = create_request(i,j,k)
