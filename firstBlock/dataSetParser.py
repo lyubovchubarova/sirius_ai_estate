@@ -88,14 +88,17 @@ def create_request(underground, page,rooms_v):
     )
     return response
 
-def parsing(min_underground, max_undergroud):
+def parsing(min_underground, max_undergroud,id):
     i = min_underground
     while(i<max_undergroud):
         for k in range(0,2):
             j = 1;
             while (j<4):
                 print(f"страница {j}, метро {i}, конфиг комнат {k}")
-                response = create_request(i,j,k)
+                try:
+                    response = create_request(i,j,k)
+                except:
+                    print('response err')
                 print(response.status_code)
                 if (response.status_code == 429):
                     print('Ошибка! Ждем')
@@ -103,12 +106,6 @@ def parsing(min_underground, max_undergroud):
                     continue
                 js = json.loads(response.text)
                 js = js['data']["offersSerialized"]
-                if (len(js)==0):
-                    if (k == 1):
-                        i+=1
-                        print("все объявления этого метро запаршены")
-                    print("переключаем К")
-                    break
                 for n in js:
                     try:
                         params = []
@@ -130,18 +127,23 @@ def parsing(min_underground, max_undergroud):
                         price = re.sub(r'\D', '', priceStr)
                         params.append(price)
 
-                        with open('dataset3.csv','a',encoding='utf-8') as f:
+                        with open(f'dataset3_{id}.csv','a',encoding='utf-8') as f:
                             string = ''
                             for ij in params:
                                 string += str(ij) + ';'
                             string = string[:-1] +'\n'
                             f.writelines(string)
                     except Exception as ex:
-                        print(ex.with_traceback())
+                        print("except")
                 j+=1
                 time.sleep(random.randint(5,9))
+        i+=1
 
 def start_parsing(yourId):
-    split_parsing = [[1,51],[51,101],[101,151],[151,201],[201,251],[251,301],[301,351],[351,401],[401,451],[451,501],[501,551],[551],[578]]
-    parsing(split_parsing[yourId][0],split_parsing[yourId][1])
-start_parsing(0)
+    for i in range(0,2):
+        split_parsing = [[14,51],[51,101],[101,151],[151,201],[201,251],[251,301],[301,351],[351,401],[401,451],[451,501],[501,551],[551],[578]]
+        parsing(split_parsing[i][0],split_parsing[i][1],i)
+start_parsing(0 )
+
+
+print('stas krutoy')
