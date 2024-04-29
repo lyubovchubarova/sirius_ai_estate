@@ -89,7 +89,8 @@ def create_request(underground, page,rooms_v):
     return response
 
 def parsing(min_underground, max_undergroud):
-    for i in range (min_underground,max_undergroud):
+    i = min_underground
+    while(i<max_undergroud):
         for k in range(0,2):
             j = 1;
             while (j<55):
@@ -104,8 +105,10 @@ def parsing(min_underground, max_undergroud):
                 js = js['data']["offersSerialized"]
                 try:
                     if (len(js)==0):
-                        i+=1;
-                        print("все объявления этого метро запаршены")
+                        if (k == 1):
+                            i+=1
+                            print("все объявления этого метро запаршены")
+                        print("переключаем К")
                         break
                     for n in js:
                         params = []
