@@ -5,8 +5,8 @@ import time
 import requests
 from bs4 import BeautifulSoup
 import json
-
-def create_request(underground, page):
+rooms_variants = [[1,4,9],[2,3]]
+def create_request(underground, page,rooms_v):
     cookies = {
         '_CIAN_GK': '61ecfcce-0826-48de-a9ba-9673353f920d',
         '__cf_bm': '5__lKNMqiSznjEB__6zMungkYdldyhlj_t3aqSXVhaE-1714375492-1.0.1.1-uGf0IUHXzZMM6I0It1v1eQ4UnsjYUUyUyRszR7P6.pGI6u5E5H9TVeXlsk3nDxITq1XEKdRpwB2KLXcmoGIIDw',
@@ -75,10 +75,7 @@ def create_request(underground, page):
             },
             'room': {
                 'type': 'terms',
-                'value': [
-                    1,
-                    2,
-                ],
+                'value': rooms_variants[rooms_v],
             },
         },
     }
@@ -93,44 +90,55 @@ def create_request(underground, page):
 
 def parsing(min_underground, max_undergroud):
     for i in range (min_underground,max_undergroud):
-        for j in range (1,54):
-            response = create_request(i,j)
-            js = json.loads(response.text)
-            js = js['data']["offersSerialized"]
-            print()
-            with open ('json.json','w',encoding='utf-8') as f:
-                json.dump(js,f,ensure_ascii=False)
-            if (len(js)==0):
-                i+=1;
-                print("все объявления этого метро запаршены")
-                break
-            for n in js:
-                params = []
-                params.append(n['geo']['address'][3]['name'])  # метро
-                params.append(n['geo']['coordinates']['lng'])  # корды
-                params.append(n['geo']['coordinates']['lat'])
-                params.append(n['building']['floorsCount'])  # этажность
-                params.append(n['building']['materialType'])  # тип дома
-                params.append(n['building']['buildYear'])  # год постройки
-                params.append(n['kitchenArea'])  # площадь кухни
-                params.append(n['roomsCount'])  # количество комнат
-                params.append(n['id'])  # id объявления
-                params.append(n['totalArea'])  # полная площадь
-                params.append(n['offerType'])  # флат - квартира
-                params.append(n['floorNumber'])  # этаж
-                params.append(n['livingArea'])  # жилая площадь
+        j = 1;
+        for k in range(0,2):
+            while (j<55):
+                print(f"страница {j}, метро {i}, конфиг комнат {k}")
+                response = create_request(i,j,k)
+                print(response.status_code)
+                if (response.status_code == 429):
+                    print('Ошибка! Ждем')
+                    time.sleep(random.randint(7,10))
+                    continue
+                js = json.loads(response.text)
+                js = js['data']["offersSerialized"]
+                try:
+                    if (len(js)==0):
+                        i+=1;
+                        print("все объявления этого метро запаршены")
+                        break
+                    for n in js:
+                        params = []
+                        params.append(n['geo']['address'][3]['name'])  # метро
+                        params.append(n['geo']['coordinates']['lng'])  # корды
+                        params.append(n['geo']['coordinates']['lat'])
+                        params.append(n['building']['floorsCount'])  # этажность
+                        params.append(n['building']['materialType'])  # тип дома
+                        params.append(n['building']['buildYear'])  # год постройки
+                        params.append(n['kitchenArea'])  # площадь кухни
+                        params.append(n['roomsCount'])  # количество комнат
+                        params.append(n['id'])  # id объявления
+                        params.append(n['totalArea'])  # полная площадь
+                        params.append(n['offerType'])  # флат - квартира
+                        params.append(n['floorNumber'])  # этаж
+                        params.append(n['livingArea'])  # жилая площадь
 
-                priceStr = str(n['formattedShortPrice'])
-                price = re.sub(r'\D', '', priceStr)
-                params.append(price)
-                with open('dataset.csv','a',encoding='utf-8') as f:
-                    string = ''
-                    for ij in params:
-                        string += str(ij) + ';'
-                    string = string[:-1] +'\n'
-                    f.writelines(string)
-                print(params)
+                        priceStr = str(n['formattedShortPrice'])
+                        price = re.sub(r'\D', '', priceStr)
+                        params.append(price)
 
-            print(params)
-            time.sleep(random.randint(5,9))
-parsing(1,5)
+                        with open('dataset2.csv','a',encoding='utf-8') as f:
+                            string = ''
+                            for ij in params:
+                                string += str(ij) + ';'
+                            string = string[:-1] +'\n'
+                            f.writelines(string)
+                except Exception as ex:
+                    print(ex.with_traceback())
+                j+=1
+                time.sleep(random.randint(5,9))
+
+def start_parsing(yourId):
+    split_parsing = [[1,101],[101,201],[201,301],[301,401],[401,501],[501,574]]
+    parsing(split_parsing[yourId][0],split_parsing[yourId][1])
+start_parsing(0)
