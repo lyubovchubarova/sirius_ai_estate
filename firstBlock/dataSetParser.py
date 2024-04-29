@@ -93,7 +93,7 @@ def parsing(min_underground, max_undergroud):
     while(i<max_undergroud):
         for k in range(0,2):
             j = 1;
-            while (j<55):
+            while (j<4):
                 print(f"страница {j}, метро {i}, конфиг комнат {k}")
                 response = create_request(i,j,k)
                 print(response.status_code)
@@ -103,14 +103,14 @@ def parsing(min_underground, max_undergroud):
                     continue
                 js = json.loads(response.text)
                 js = js['data']["offersSerialized"]
-                try:
-                    if (len(js)==0):
-                        if (k == 1):
-                            i+=1
-                            print("все объявления этого метро запаршены")
-                        print("переключаем К")
-                        break
-                    for n in js:
+                if (len(js)==0):
+                    if (k == 1):
+                        i+=1
+                        print("все объявления этого метро запаршены")
+                    print("переключаем К")
+                    break
+                for n in js:
+                    try:
                         params = []
                         params.append(n['geo']['address'][3]['name'])  # метро
                         params.append(n['geo']['coordinates']['lng'])  # корды
@@ -136,12 +136,12 @@ def parsing(min_underground, max_undergroud):
                                 string += str(ij) + ';'
                             string = string[:-1] +'\n'
                             f.writelines(string)
-                except Exception as ex:
-                    print(ex.with_traceback())
+                    except Exception as ex:
+                        print(ex.with_traceback())
                 j+=1
                 time.sleep(random.randint(5,9))
 
 def start_parsing(yourId):
-    split_parsing = [[1,101],[101,201],[201,301],[301,401],[401,501],[501,574]]
+    split_parsing = [[1,51],[51,101],[101,151],[151,201],[201,251],[251,301],[301,351],[351,401],[401,451],[451,501],[501,551],[551],[578]]
     parsing(split_parsing[yourId][0],split_parsing[yourId][1])
 start_parsing(0)
