@@ -130,7 +130,7 @@ def parsing(min_underground, max_undergroud):
                         price = re.sub(r'\D', '', priceStr)
                         params.append(price)
 
-                        with open('dataset2.csv','a',encoding='utf-8') as f:
+                        with open('dataset3.csv','a',encoding='utf-8') as f:
                             string = ''
                             for ij in params:
                                 string += str(ij) + ';'
